@@ -1,0 +1,54 @@
+<html>
+	<body>
+		<canvas id="RenderCanvas" width=640 height=480></canvas>
+
+		<script id="VertexShaderSource" type="text/notjs">
+			uniform mat4 MVP;
+			uniform mat3 NormalMat;
+			uniform mat4 ViewWorldMat;
+			uniform mat4 ViewMat;
+			uniform vec3 CameraVecTo;
+			uniform vec3 CameraEye;			
+
+			highp vec3 LightCord = vec3(0,0,10);
+
+			attribute vec3 vPos;
+			attribute vec3 vNor;
+			attribute vec2 Uv;
+			varying vec2 TexCord;
+			varying float B1;
+			void main() 
+			{
+				vec3 LightLenght = normalize(vec3(ViewWorldMat*vec4(vPos,1) - ViewMat*vec4(LightCord,1)));
+				vec3 TransformedNormal = normalize(NormalMat*vNor);
+				float x = dot(LightLenght,TransformedNormal);
+				B1 = clamp(x,0.0,1.0);
+				
+
+				gl_Position = MVP*vec4(vPos,1);
+				TexCord = Uv;
+			}
+		</script>
+
+		<script id="FragmentShaderSource" type="text/notjs">
+			precision mediump float;
+			varying vec2 TexCord;
+			uniform sampler2D Smp1;
+			varying float B1;
+			void main() 
+			{
+				vec4 Col = texture2D(Smp1,TexCord);
+   				gl_FragColor = vec4(Col.rgb*B1,Col.a);
+			}
+		</script>
+		<script language="javascript" type="text/javascript" src='gl-matrix.js'></script>
+		<script language="javascript" type="text/javascript" src="Utils.js"></script>
+		<script language="javascript" type="text/javascript" src="Render.js"></script>
+		<script language="javascript" type="text/javascript" src="Entry.js"></script>
+	</body>
+
+	<noscript>
+		JavaScript is needed
+	</noscript>
+
+</html>
